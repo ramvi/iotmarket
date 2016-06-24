@@ -1,0 +1,34 @@
+{
+  "name": "iotmarket",
+  "version": "0.0.1",
+  "description": "Data feed market on the Ethereum blockchain.",
+  "main": "app/app.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "testrpc && truffle test",
+    "start": "testrpc && truffle serve"
+  },
+  "dependencies": {
+    "truffle": "^1.0.3",
+    "ethereumjs-testrpc": "​*.*​.*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ramvi/iotmarket.git"
+  },
+  "keywords": [
+    "iot",
+    "sensor",
+    "bigdata",
+    "blockchain",
+    "ethereum"
+  ],
+  "author": "Jon Ramvi <jon@blockchangers.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ramvi/iotmarket/issues"
+  },
+  "homepage": "https://github.com/ramvi/iotmarket#readme"
+}
