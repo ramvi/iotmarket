@@ -1,4 +1,5 @@
 // TODO Hvordan liste opp alle? Den på nett har jo noe søk. Bare løse med events?
+// TODO Skriv in receiving contract som kan brukes istedenfor vanlig overføring
 
 // This is the base contract that your contract SimpleDataMarket extends from.
 contract BaseRegistry {
@@ -14,6 +15,7 @@ contract BaseRegistry {
         string desc;
         bool active;
         string help;
+        address payTo;
         uint256 price;
     }
 
@@ -33,7 +35,7 @@ contract BaseRegistry {
 
     // This is the function that actually insert a record.
     // key og payTo er samme
-    function register(address key, string desc, bool active, string help, uint256 price) {
+    function register(address key, string desc, bool active, string help, address payTo, uint256 price) {
         if (now - lastCheck > FREQUENCY_TO_CHECK_EXPIRATION) {
             lastCheck = now;
             // Checks if there are expirted records. If so, remove them.
@@ -63,6 +65,7 @@ contract BaseRegistry {
             records[key].desc = desc;
             records[key].active = active;
             records[key].help = help;
+            records[key].payTo = payTo;
             records[key].price = price;
 
             numRecords++;
@@ -72,7 +75,7 @@ contract BaseRegistry {
     }
 
     // Updates the values of the given record.
-    function update(address key, string desc, bool active, string help, uint256 price) {
+    function update(address key, string desc, bool active, string help, address payTo, uint256 price) {
         // Only the owner can update his record.
         if (records[key].owner == msg.sender) {
             records[key].desc = desc;
@@ -105,7 +108,7 @@ contract BaseRegistry {
         return true;
     }
 
-    function getRecordAtIndex(uint rindex) returns(address key, address owner, uint time, string desc, bool active, string help, uint256 price) {
+    function getRecordAtIndex(uint rindex) returns(address key, address owner, uint time, string desc, bool active, string help, address payTo, uint256 price) {
         Record record = records[keys[rindex]];
         key = keys[rindex];
         owner = record.owner;
@@ -113,16 +116,18 @@ contract BaseRegistry {
         desc = record.desc;
         active = record.active;
         help = record.help;
+        payTo = record.payTo;
         price = record.price;
     }
 
-    function getRecord(address key) returns(address owner, uint time, string desc, bool active, string help, uint256 price) {
+    function getRecord(address key) returns(address owner, uint time, string desc, bool active, string help, address payTo, uint256 price) {
         Record record = records[key];
         owner = record.owner;
         time = record.time;
         desc = record.desc;
         active = record.active;
         help = record.help;
+        payTo = record.payTo;
         price = record.price;
     }
 

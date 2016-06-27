@@ -1,4 +1,4 @@
-BigNumber = require('bignumber.js');
+var BigNumber = require('bignumber.js');
 
 var accounts;
 var account;

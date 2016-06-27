@@ -15,27 +15,45 @@ contract('SimpleDataMarket', function (accounts) {
         var market = SimpleDataMarket.deployed();
 
         var account_creator = accounts[0]; // TODO Test at pengene går et annet sted
-        var account_buyer = accounts[1]; 
+        var account_buyer = accounts[1];
 
-        var account_one_starting_balance;
-        var account_two_starting_balance;
-        var account_one_ending_balance;
-        var account_two_ending_balance;
+        var amount = web3.toWei(1, "ether");
 
-        var amount = 10;
+        var account_creator_balance;
 
-        market.register.call(
+        market.register.sendTransaction(
             account_creator,
             "Live GPS data from Jon Ramvis iPhone. Delivered every second. This deal is for access for one month from initialization.",
             true,
             "The solution is available through a REST interface on example.com",
-            0.3 // TODO Sette prisen i noe mer stabilt, feks dollar
-        ).then(function() {
-            account_creator.send()
-            market.getRecord.call(account_creator).then(function(address) {
-
-            })
-            assert.equal(test, "jon jon2");
+            account_creator,
+            amount // TODO Sette prisen i noe mer stabilt, feks dollar
+        ).then(function () {
+            return web3.eth.getBalance(account_creator).toNumber();
+        }).then(function (balance) {
+            account_creator_balance = web3.fromWei(balance, "ether");
+            console.log(account_creator_balance);
+            return market.getRecord.call(account_creator);
+        }).then(function (record) {
+            return record[5]; // PayTo contract
+        }).then(function (payTo) {
+            assert.equal(payTo, account_creator);
+            return web3.eth.sendTransaction({
+                from: account_buyer,
+                to: payTo,
+                value: amount
+            });
+        }).then(function () {
+            return web3.eth.getBalance(account_creator).toNumber();
+        }).then(function (balance) {
+            var new_balance = web3.fromWei(balance, "ether");
+            console.log(new_balance);
+            assert.equal(new_balance, account_creator_balance + 1, "payTo hasn't gotten 1 ether");
         }).then(done).catch(done);
     });
+
+
+    /*it("shouldn't allow a key to be used twice", function (done) {
+     var market = SimpleDataMarket.deployed();
+     })*/
 });
