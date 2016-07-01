@@ -2,11 +2,7 @@
 // TODO Skriv in receiving contract som kan brukes istedenfor vanlig overføring
 
 // This is the base contract that your contract SimpleDataMarket extends from.
-contract SimpleDataMarket {
-
-    struct Purchase {
-      uint startTime;
-    }
+contract BaseRegistry {
 
     // This struct keeps all data for a Record.
     struct Record {
@@ -20,12 +16,8 @@ contract SimpleDataMarket {
         bool active;
         string help;
         address payTo;
-        uint secondsLength;
         uint256 price;
-        // buyer => {block.time purchased, seconds should have access}
-        mapping (address => Purchase) purchases; // TODO Hvordan blir dette med 256 stacken? Er det bedre å ha mappingen utenfor -- løser det noe?
-        // Er det noe/mye overhead på at det er struct Purchase
-        uint vault;
+
     }
 
     // This mapping keeps the records of this Registry.
@@ -37,9 +29,34 @@ contract SimpleDataMarket {
     // Keeps a list of all keys to interate the records.
     address[] private keys;
 
+
+    uint public TIME_TO_LIVE = 31536000;
+    uint public FREQUENCY_TO_CHECK_EXPIRATION = 3600;
+    uint private lastCheck = now;
+
     // This is the function that actually insert a record.
-    // TODO key og payTo er samme  - og owner? optimalisere
-    function register(address key, string desc, bool active, string help, address payTo, uint secondsLength, uint256 price) {
+    // key og payTo er samme
+    function register(address key, string desc, bool active, string help, address payTo, uint256 price) {
+        if (now - lastCheck > FREQUENCY_TO_CHECK_EXPIRATION) {
+            lastCheck = now;
+            // Checks if there are expirted records. If so, remove them.
+            for (uint i = 0; i < numRecords; i++) {
+                Record record = records[keys[i]];
+                if (block.timestamp - record.time > TIME_TO_LIVE) {
+                    // record expired
+                    delete records[keys[i]];
+                    keys[i] = keys[numRecords - 1];
+                    keys.length--;
+                    numRecords--;
+                    i--; // Repeat last i since now keys[i] = keys[i+1]
+                } else {
+                    // Since index contains the list of the keys ordered by timestamp, if a given
+                    // record has not expired then it is guaranteed that the next blocks will not have
+                    // expired either.
+                    break;
+                }
+            }
+        }
         if (records[key].time == 0) {
             records[key].time = now;
             records[key].owner = msg.sender;
@@ -50,33 +67,35 @@ contract SimpleDataMarket {
             records[key].active = active;
             records[key].help = help;
             records[key].payTo = payTo;
-            records[key].secondsLength = secondsLength;
             records[key].price = price;
 
             numRecords++;
         } else {
-            returnValue(); // TODO wat is this
+            returnValue();
         }
     }
 
     // Updates the values of the given record.
-    function update(address key, string desc, bool active, string help, address payTo, uint secondsLength, uint256 price) {
+    function update(address key, string desc, bool active, string help, address payTo, uint256 price) {
         // Only the owner can update his record.
         if (records[key].owner == msg.sender) {
             records[key].desc = desc;
             records[key].active = active;
             records[key].help = help;
-            records[key].payTo = payTo;
-            records[key].secondsLength = secondsLength;
             records[key].price = price;
         }
     }
 
     // Unregister a given record
-    function toggleActive(address _seller) {
-      Record r = records[_seller];
-      if (r.owner == msg.sender)
-        r.active = !r.active;
+    function unregister(address key) {
+        if (records[key].owner == msg.sender) {
+            uint keysIndex = records[key].keysIndex;
+            delete records[key];
+            numRecords--;
+            keys[keysIndex] = keys[keys.length - 1];
+            records[keys[keysIndex]].keysIndex = keysIndex;
+            keys.length--;
+        }
     }
 
     // Tells whether a given key is registered.
@@ -84,10 +103,13 @@ contract SimpleDataMarket {
         if (records[key].time == 0) {
             return false;
         }
+        if (now - records[key].time > TIME_TO_LIVE) {
+            return false;
+        }
         return true;
     }
 
-    function getRecordAtIndex(uint rindex) returns(address key, address owner, uint time, string desc, bool active, string help, address payTo, uint secondsLength, uint256 price) {
+    function getRecordAtIndex(uint rindex) returns(address key, address owner, uint time, string desc, bool active, string help, address payTo, uint256 price) {
         Record record = records[keys[rindex]];
         key = keys[rindex];
         owner = record.owner;
@@ -96,11 +118,10 @@ contract SimpleDataMarket {
         active = record.active;
         help = record.help;
         payTo = record.payTo;
-        secondsLength = record.secondsLength;
         price = record.price;
     }
 
-    function getRecord(address key) returns(address owner, uint time, string desc, bool active, string help, address payTo, uint secondsLength, uint256 price) {
+    function getRecord(address key) returns(address owner, uint time, string desc, bool active, string help, address payTo, uint256 price) {
         Record record = records[key];
         owner = record.owner;
         time = record.time;
@@ -108,7 +129,6 @@ contract SimpleDataMarket {
         active = record.active;
         help = record.help;
         payTo = record.payTo;
-        secondsLength = record.secondsLength;
         price = record.price;
     }
 
@@ -127,40 +147,8 @@ contract SimpleDataMarket {
     }
 
     // Returns the total number of records in this registry.
-    function getTotalRecords() constant returns(uint) {
+    function getTotalRecords() returns(uint) {
         return numRecords;
-    }
-
-    // Deposits money into the contract to buy access to sensor data
-    // New data can only be added when previous purchase is ended
-    event Logging(string text);
-    function buyAccess(address _deal, address _buyer) {
-      Record r = records[_deal];
-      if (r.price != msg.value) throw;
-      if (checkAccess(_deal, _buyer)) throw; // Avoids overwriting already purchased sensordata.
-      if (_buyer == 0) _buyer = msg.sender;
-
-      r.purchases[_buyer] = Purchase(now);
-      r.vault += msg.value;
-    }
-
-    function checkAccess(address _deal, address _buyer) constant returns (bool access) {
-      Record r = records[_deal];
-
-      uint start = r.purchases[_buyer].startTime;
-      if (start == 0) throw; // No purchase exist
-
-      if (start + r.secondsLength > now)
-        return false;
-      return true;
-    }
-
-    function withdraw(address key) {
-        if (msg.sender == records[key].owner) {
-            uint earnings = records[key].vault;
-            records[key].vault = 0; // In this order to be sure ledger is set to 0 BEFORE transfering the money
-            msg.sender.send(earnings);  // TODO kontrakten må betale for dette. Hvordan får den råd til det? https://ethereum.stackexchange.com/questions/2876/how-does-one-contract-send-a-transaction-to-another-contract-with-more-then-2300
-        }
     }
 
     // This function is used by subcontracts when an error is detected and
@@ -173,3 +161,5 @@ contract SimpleDataMarket {
 
     function() {}
 }
+
+contract SimpleDataMarket is BaseRegistry {}
