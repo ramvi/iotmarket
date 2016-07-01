@@ -1,6 +1,6 @@
 // TODO Hvordan liste opp alle? Den på nett har jo noe søk. Bare løse med events?
 // TODO Skriv in receiving contract som kan brukes istedenfor vanlig overføring
-
+// TODO Optimaliser koden. Modifiers
 // This is the base contract that your contract SimpleDataMarket extends from.
 contract SimpleDataMarket {
 
@@ -133,12 +133,13 @@ contract SimpleDataMarket {
 
     // Deposits money into the contract to buy access to sensor data
     // New data can only be added when previous purchase is ended
-    event Logging(string text);
     function buyAccess(address _deal, address _buyer) {
-      Record r = records[_deal];
+    Record r = records[_deal];
       if (r.price != msg.value) throw;
-      if (checkAccess(_deal, _buyer)) throw; // Avoids overwriting already purchased sensordata.
-      if (_buyer == 0) _buyer = msg.sender;
+
+      // if (checkAccess(_deal, _buyer)) throw; // TODO Avoids overwriting already purchased sensordata.
+
+      //if (_buyer == 0) _buyer = msg.sender; // Det er vel ikke mulig å sende inn uten  dette param, så er det vits i?
 
       r.purchases[_buyer] = Purchase(now);
       r.vault += msg.value;
@@ -148,11 +149,11 @@ contract SimpleDataMarket {
       Record r = records[_deal];
 
       uint start = r.purchases[_buyer].startTime;
-      if (start == 0) throw; // No purchase exist
+      if (start == 0) throw; // No purchase exists
 
-      if (start + r.secondsLength > now)
-        return false;
-      return true;
+      if ((start + r.secondsLength) > now)
+        return true;
+      return false;
     }
 
     function withdraw(address key) {
@@ -162,6 +163,10 @@ contract SimpleDataMarket {
             msg.sender.send(earnings);  // TODO kontrakten må betale for dette. Hvordan får den råd til det? https://ethereum.stackexchange.com/questions/2876/how-does-one-contract-send-a-transaction-to-another-contract-with-more-then-2300
         }
     }
+
+    /*function balance2() constant returns (uint) {
+      return this.balance();
+    }*/
 
     // This function is used by subcontracts when an error is detected and
     // the value needs to be returned to the transaction originator.
