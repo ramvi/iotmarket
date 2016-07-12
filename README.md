@@ -2,8 +2,11 @@
 Data feed market on the Ethereum blockchain.
 
 ## Branches
-### [**master**](https://github.com/ramvi/iotmarket/tree/master)
-This is the activly developed branch. This branch builds on the _simplest_ implementation, extending it by moving more of the features to the blockchain.
+
+* `master`
+* `simplest`
+
+### [`master`](https://github.com/ramvi/iotmarket/tree/master) Extends the `simplest` implementation with more featueres on-chain
 
 #### Use case diagram
 
@@ -11,30 +14,47 @@ This is the activly developed branch. This branch builds on the _simplest_ imple
 
 1. The Provider of the data / the sensor owner registers the sensor on the blockchain
 1. The Buyer finds the sensor through some kind of discovery app and gets it's record from the blockchain 
-1. The Buyer reviews records and sends the given amount of ether 
+1. The Buyer reviews records and sends the given amount of ether
+1. The Buyer follows the contract help string on how to get the data
+1. The sensor checks if the Buyer has access
+
+Only getting sensor data off-chain.
 
 #### TODO
   * [ ] Frontend
   * [ ] Tests for all use cases
   * [ ] Discovery of available data sources
+  How to aggregate active sensor contracts over time? Oracle outside of
+   the blockchain? Gossiping mellom alle klienter? Eller gi oppgaven til gateways?
+  * [ ] Rewrite using newly proposed [Condition-oriented programming](https://blog.ethcore.io/condition-oriented-programming-2/)
+  * [ ] Security audit
+  * [ ] The contract needs funds to send ether in the withdraw function. Take a 0.1% premium? Has to 1. always be enough to widthdraw. 2. Needs a contract widthdraw so that the contract doesn't hold a lot of unusable ether
 
-* [**simplest**](https://github.com/ramvi/iotmarket/tree/simplest) is the most primitive implementation of the IoT market idea.
+### [`simplest`](https://github.com/ramvi/iotmarket/tree/simplest) is the most primitive implementation of the IoT market idea.
+
 ![simplest]
+
+1. The Provider of the data / the sensor owner registers the sensor on the blockchain
+1. The Buyer finds the sensor through some kind of discovery app and gets it's record from the blockchain
+1. The Buyer reviews records and sends the given amount of ether *directly to the Provider, outside of the contract*
+1. The Buyer follows the contract help string on how to get the data
+1. The Provider or sensor is responsible for access management
 
 ## Roadmap
 
 * [ ] Reputation - or ratings at least. Is this feed delivering what's promised?
 * [ ] Payment Channel using e.g. [obscurien's implementation](https://github.com/obscuren/whisper-payment-channel) or [void4's implementation](https://github.com/void4/paymentchannel) ![paymentchannel]
-* [ ] Evaluate permissioned blockchain for this service using e.g. [HydraChain](https://github.com/HydraChain/hydrachain)
+* [ ] Evaluate permissioned blockchain where Providers are kinds for optimalization e.g. [HydraChain](https://github.com/HydraChain/hydrachain), HyperLedger, MultiChain
 * [ ] Test in real environment with real data from a sensor is being purchased
 * [ ] Display prices in USD (and other currencies?) 
 Not completely sold on this one. If the price is actually in ether, but shown in dollars can you end up paying a different amount than expected. In the payment channel scenario at least. Without the payment channel the purchase is completed at the same time that the price is displayed. With an accepted price in USD, but actually done in Ether, is it possible to envision a solution where both parties keep the deal running as long as the ratio between eth/usd is within a given threshold. 
 * [ ] Support USD or other ways of payment e.g. Stipe
 
 ## Open Questions
-* Who deactivates offline sensors? There's a function for the owner doing it, but we can't rely on the owner to clean up the registry. 
+* Who deactivates offline sensors? There's a function for the owner doing it, but we can't rely on the owner to clean up the registry.
 * How to do [formal verification](https://forum.ethereum.org/discussion/3779/formal-verification-for-solidity-contracts)?
 * How to aggregate, find and filter available data feeds?
+* With most features moved on-chain with Payment Channels, how to move the actual data on-chain?
 
 [simplest]: https://lh3.googleusercontent.com/R2aaHY--RSP_tfDsUcE2S3qxPyl3Of1_c9foJvKt2NK3IaQhiu1xSCGv_4z2Uh5zCTjbbfnsvNPjK9QZuecRMultXU7HpNdW5hDG7Z_U-tCmAgkdXe3HjkyH0rzsQXFCgniKMnZZKBu3VFw7P4Yv2ht-vlfgj1K8Gr8N54nstMFlReqYj98Qc96byuvjnzeGckiFRuW7RXmViK53yURxueIg5cJXs95uTL9_GxmGUExJlePQulabzFrgxJ9C-J-EHAfS4LvZuzTM7utZdMUc-mvXBwkw4RwL0ygCAucDTz-NYYxXsJN6_ZeTbo_cHbar9GxG_8_d_YcqYs8Go9HFdjN8hN4h4pPPQRW9O6bPwMiR3WIxSeg_PtFzlQFtY97gkYqw_yqwsVI3fyHsad06uAcNXkT4t7cHMRDLc4gVAKXD1af8S23hlH63mq6-Ur1In5ONgGvtOhsnqD313ujMIM5TwKrBCjy-yAnB4ed5UD19OFZKwwISqqlNyz6wdKEg9dFlCoSs4XWB-5TGi7c_iEGlum7S5V-X5RKIFg18yKqOybA9Bwe5U6XwVsEFylUUUKG_KNNemhcnprVlk5WGWhHO1CPToe_o=s2016-no "IoT market simplest implementation"
 
