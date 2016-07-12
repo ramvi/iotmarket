@@ -3,4 +3,11 @@
 bak/
 node_modules/
 testgeth/
-environments/
+environments/development/build
+environments/production/build
+environments/staging/build
+environments/test/build
+environments/development/contracts
+environments/production/contracts
+environments/staging/contracts
+environments/test/contracts
