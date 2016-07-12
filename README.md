@@ -21,7 +21,8 @@ Data feed market on the Ethereum blockchain.
 Only getting sensor data off-chain.
 
 #### TODO
-  * [ ] Frontend
+  * [ ] Frontend. Header (menu, select account), material design, react? Price in ether, time in minutes. Display contract being stored.
+  * [ ] One sensor can have many different contracts
   * [ ] Tests for all use cases
   * [ ] Discovery of available data sources
   How to aggregate active sensor contracts over time? Oracle outside of

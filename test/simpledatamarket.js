@@ -1,16 +1,3 @@
-/*
- - register
- - update(address key, string desc, bool active, string help, uint256 price)
- - unregister(address key)
- - isRegistered(address key) returns(bool)
- - getRecordAtIndex(uint rindex) returns(address key, address owner, uint time, string desc, bool active, string help, uint256 price)
- - getRecord(address key) returns(address owner, uint time, string desc, bool active, string help, uint256 price)
- - getOwner(address key) returns(address)
- - getTime(address key) returns(uint)
- - getTotalRecords() returns(uint)
- */
-
-
 contract('SimpleDataMarket', function (accounts) {
 
     var account_creator = accounts[0];

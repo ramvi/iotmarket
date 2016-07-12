@@ -1,12 +1,3 @@
-<!--
-Vanskelig å debugge
-- js: alt er fletttet inn i en stor fil og minimized. Sikkert mulig å gjøre noe. Skulle helst hatt binding mellom truffle serve / npm http server og intellij
-- solidity: linter, men ingen debugger. Heller ingen console.log
-- evm debuger:
-http://ethereum.github.io/remix/
-
-TODO Select account - who you represent
--->
 <!DOCTYPE html>
 <html>
 <head>
@@ -23,10 +14,6 @@ TODO Select account - who you represent
 <h1>IoT Data Market</h1>
 <h2>New sensor</h2>
 
-<!-- TODO Top menu: index, newsensor -->
-<!-- TODO Material design. React? Bootstrap?
-Price in ether, time in minutes-->
-
 <h3>You have <span class="black"><span id="balance"></span> ether</span></h3>
 
 <label>Description of data: <input type="text" id="desc"></label><br>
@@ -40,10 +27,6 @@ Price in ether, time in minutes-->
 <label>Your pubKey <input type="text" disabled id="pubkey" value="..."></label><br>
 
 <button id="registerSensor" onclick="registerSensor()">Register Sensor</button>
-
-<!-- TODO Display being stored, som i Mist
- TODO en sensor kan ha mange kontrakter. lag en interface for det
- TODO Lag løsninger oppå SimpleDataMarket, feks å samle data for så å selge i bulk-->
 
 <h3>Your sensors contracts (tx)</h3> Doesn't make much sense. Should display info
 <table id="mySensors">
