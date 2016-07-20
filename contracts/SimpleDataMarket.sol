@@ -131,12 +131,12 @@ contract SimpleDataMarket {
 
   // Deposits money into the contract to buy access to sensor data
   // New data can only be added when previous purchase is ended
-  function buyAccess(address _deal, address _buyer) {
+  function buyAccess(address _deal) {
     Record r = records[_deal];
     if (r.price == msg.value) {
       // if (checkAccess(_deal, _buyer)) throw; // TODO Avoids overwriting already purchased sensordata.
       //if (_buyer == 0) _buyer = msg.sender; // Det er vel ikke mulig å sende inn uten  dette param, så er det vits i?
-      r.purchases[_buyer] = Purchase(now);
+      r.purchases[msg.sender] = Purchase(now);
       r.vault += msg.value;
     } else {
       returnValue();
@@ -159,6 +159,12 @@ contract SimpleDataMarket {
       uint earnings = records[key].vault;
       records[key].vault = 0; // In this order to be sure ledger is set to 0 BEFORE transfering the money. DAO bug
       msg.sender.send(earnings);
+    }
+  }
+
+  function balance(address key) constant returns (uint balance) {
+    if (msg.sender == records[key].owner) {
+      return records[key].vault;
     }
   }
 

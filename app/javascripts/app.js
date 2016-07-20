@@ -15,17 +15,13 @@ var state;
 
 function refreshBalance() {
     var balanceField = document.getElementById("balance");
-    var balance = web3.eth.getBalance(account).valueOf();
-    balanceField.innerHTML = parseFloat(Math.round(web3.fromWei(balance, "ether") * 100) / 100).toFixed(2);
-    ;
+    web3.eth.getBalance(account, function(error, result) {
+        if (!error) {
+            balanceField.innerHTML = parseFloat(Math.round(web3.fromWei(result.valueOf(), "ether") * 100) / 100).toFixed(2);
+    } else
+            console.error(error);
+    });
 
-    /*meta.getBalance.call(account, {from: account}).then(function(value) {
-     var balance_element = document.getElementById("balance");
-     balance_element.innerHTML = value.valueOf();
-     }).catch(function(e) {
-     console.log(e);
-     setStatus("Error getting balance; see log.");
-     });*/
 };
 
 function registerSensor() {
@@ -38,25 +34,27 @@ function registerSensor() {
 
     market.register(
         account,
-        "TEST: Live GPS data from Jon Ramvis iPhone. Delivered every second. This deal is for access for one month from initialization.",
+        desc,
         true,
-        "The solution is available through a REST interface on example.com",
+        help,
         account,
         secondsLength, // one month
         price,
         {from: account}
+
     ).then(function (tx) {
-        a = JSON.parse(localStorage.getItem('sensors'));
+
+        setStatus("... pushing to blockchain ...");
+        /*a = JSON.parse(localStorage.getItem('sensors'));
         if (!a) var a = [];
         a.push(tx);
-        localStorage.setItem('sensors', JSON.stringify(a));
-
-        var table = document.getElementById("mySensors");
-        var row = table.insertRow(0);
-        var cell1 = row.insertCell(0);
-        var cell2 = row.insertCell(1);
-        cell1.innerHTML = tx;
+        localStorage.setItem('sensors', JSON.stringify(a));*/
     });
+}
+
+function setStatus(text) {
+    var statusDiv = document.getElementById("status");
+    statusDiv.innerHTML = text;
 }
 
 function listen() {
@@ -68,23 +66,56 @@ function listen() {
     event.watch(function (error, result) {
         console.log(result);
         if (!error) {
+            // Update status
+            if (result.args.key === account) {
+                setStatus("");
+            }
+
             var table = document.getElementById("mySensors");
             var row = table.insertRow(0);
             var cell1 = row.insertCell(0);
             var cell2 = row.insertCell(1);
+            var cell3 = row.insertCell(2);
+            var cell4 = row.insertCell(3);
+            var cell5 = row.insertCell(4);
+            var cell6 = row.insertCell(5);
             cell1.innerHTML = result.args.key;
             cell2.innerHTML = result.args.desc;
-            cell2.innerHTML = result.args.help;// TODO
-            cell2.innerHTML = result.args.price;// TODO
-            cell2.innerHTML = result.args.duration;// TODO
+            cell3.innerHTML = result.args.help;
+            cell4.innerHTML = result.price;
+            cell5.innerHTML = result.duration;
+            cell6.innerHTML = '<button id="buyAccess" onclick="">Buy Access</button>';
+
+            a = JSON.parse(localStorage.getItem('sensors'));
+            if (!a) var a = [];
+            a.push(row);
+            localStorage.setItem('sensors', JSON.stringify(a));
         } else console.log(error);
     });
 }
 
 function clearLocalStorage() {
-    ;
     localStorage.setItem('sensors', null);
 }
+
+
+var handler = {
+    get: function(target, prop, receiver){
+        var ls = JSON.parse(localStorage.getItem('settings'));
+        console.log(target);
+        console.log(prop);
+        console.log(receiver);
+        return ls[prop];
+    },
+    /*set: function(target, property, value, receiver) {
+        //var settings = JSON.parse(localStorage.getItem('settings'));
+        var ls = {property: value};
+        localStorage.setItem('settings', JSON.stringify(ls));
+    }*/
+};
+
+var settings = new Proxy({}, handler);
+
 
 window.onload = function () {
 
@@ -97,19 +128,21 @@ window.onload = function () {
 
     listen();
 
-    web3.eth.getAccounts(function (err, accs) {
+
+
+    web3.eth.getAccounts(function (err, accounts) {
         if (err != null) {
             alert("There was an error fetching your accounts.");
             return;
         }
 
-        if (accs.length == 0) {
+        if (accounts.length == 0) {
             alert("Couldn't get any accounts! Make sure your Ethereum client is configured correctly.");
             return;
         }
 
-        accounts = accs;
         account = accounts[0];
+        window.account = account;
 
         refreshBalance();
 
@@ -128,14 +161,14 @@ window.onload = function () {
         var table = document.getElementById("mySensors");
         a = JSON.parse(localStorage.getItem('sensors'));
         if (a) {
-            a.forEach(function (tx) {
-                var row = table.insertRow(0);
-                var cell1 = row.insertCell(0);
-                var cell2 = row.insertCell(1);
-                cell1.innerHTML = tx;
+            a.forEach(function (row) {
+                //var row = table.insertRow(tx);
+                // console.log(row);
             });
         }
     })
+
+
 
 
 }
