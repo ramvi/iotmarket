@@ -23,7 +23,7 @@ contract SimpleDataMarket {
   }
 
   // This mapping keeps the records of this Registry.
-  mapping(address => Record) records;
+  mapping(string => Record) records;
 
   // Keeps the total numbers of records in this Registry.
   uint public numRecords;
@@ -31,13 +31,13 @@ contract SimpleDataMarket {
   // Keeps a list of all keys to interate the records.
   address[] private keys;
 
-  event NewSensor(address key, string desc, string help, uint secondsLength, uint price);
+  event NewSensor(string key, string desc, string help, uint secondsLength, uint price);
 
   // TODO moar events!!! event SensorToggled();
 
   // This is the function that actually insert a record.
   // TODO key og payTo er somregel samme  - og owner, og sender. optimalisere
-  function register(address key, string desc, bool active, string help, address payTo, uint secondsLength, uint price) {
+  function register(string key, string desc, bool active, string help, address payTo, uint secondsLength, uint price) {
     if (records[key].time == 0) {
       records[key].time = now;
       records[key].owner = msg.sender;
@@ -58,7 +58,7 @@ contract SimpleDataMarket {
   }
 
   // Updates the values of the given record.
-  function update(address key, string desc, bool active, string help, address payTo, uint secondsLength, uint256 price) {
+  function update(string key, string desc, bool active, string help, address payTo, uint secondsLength, uint256 price) {
     // Only the owner can update his record.
     if (records[key].owner == msg.sender) {
       records[key].desc = desc;
@@ -78,14 +78,14 @@ contract SimpleDataMarket {
   }
 
   // Tells whether a given key is registered.
-  function isRegistered(address key) returns(bool) {
+  function isRegistered(string key) constant returns(bool) {
     if (records[key].time == 0) {
       return false;
     }
     return true;
   }
 
-  function getRecordAtIndex(uint rindex) returns(address key, address owner, uint time, string desc, bool active, string help, address payTo, uint secondsLength, uint256 price) {
+  function getRecordAtIndex(uint rindex) returns(string key, address owner, uint time, string desc, bool active, string help, address payTo, uint secondsLength, uint256 price) {
     Record record = records[keys[rindex]];
     key = keys[rindex];
     owner = record.owner;
@@ -98,7 +98,7 @@ contract SimpleDataMarket {
     price = record.price;
   }
 
-  function getRecord(address key) returns(address owner, uint time, string desc, bool active, string help, address payTo, uint secondsLength, uint256 price) {
+  function getRecord(string key) returns(address owner, uint time, string desc, bool active, string help, address payTo, uint secondsLength, uint256 price) {
     Record record = records[key];
     owner = record.owner;
     time = record.time;
@@ -113,14 +113,14 @@ contract SimpleDataMarket {
   // Returns the owner of the given record. The owner could also be get
   // by using the function getRecord but in that case all record attributes
   // are returned.
-  function getOwner(address key) returns(address) {
+  function getOwner(string key) returns(address) {
     return records[key].owner;
   }
 
   // Returns the registration time of the given record. The time could also
   // be get by using the function getRecord but in that case all record attributes
   // are returned.
-  function getTime(address key) returns(uint) {
+  function getTime(string key) returns(uint) {
     return records[key].time;
   }
 
@@ -131,10 +131,10 @@ contract SimpleDataMarket {
 
   // Deposits money into the contract to buy access to sensor data
   // New data can only be added when previous purchase is ended
-  function buyAccess(address _deal) {
-    Record r = records[_deal];
+  function buyAccess(string key) {
+    Record r = records[key];
     if (r.price == msg.value) {
-      // if (checkAccess(_deal, _buyer)) throw; // TODO Avoids overwriting already purchased sensordata.
+      // if (checkAccess(key, _buyer)) throw; // TODO Avoids overwriting already purchased sensordata.
       //if (_buyer == 0) _buyer = msg.sender; // Det er vel ikke mulig å sende inn uten  dette param, så er det vits i?
       r.purchases[msg.sender] = Purchase(now);
       r.vault += msg.value;
@@ -143,8 +143,8 @@ contract SimpleDataMarket {
     }
   }
 
-  function checkAccess(address _deal, address _buyer) constant returns (bool access) {
-    Record r = records[_deal];
+  function checkAccess(string key, address _buyer) constant returns (bool access) {
+    Record r = records[key];
 
     uint start = r.purchases[_buyer].startTime;
     if (start == 0) throw; // No purchase exists
@@ -154,7 +154,7 @@ contract SimpleDataMarket {
     return false;
   }
 
-  function withdraw(address key) {
+  function withdraw(string key) {
     if (msg.sender == records[key].owner) {
       uint earnings = records[key].vault;
       records[key].vault = 0; // In this order to be sure ledger is set to 0 BEFORE transfering the money. DAO bug
@@ -162,7 +162,7 @@ contract SimpleDataMarket {
     }
   }
 
-  function balance(address key) constant returns (uint balance) {
+  function balance(string key) constant returns (uint balance) {
     if (msg.sender == records[key].owner) {
       return records[key].vault;
     }
