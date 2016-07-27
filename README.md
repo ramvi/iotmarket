@@ -1,6 +1,6 @@
 # IoT marketplace
 Data feed market on the Ethereum blockchain.
-
+ 
 ## Branches
 
 * `master`
@@ -13,7 +13,7 @@ Data feed market on the Ethereum blockchain.
 ![simple]
 
 1. The Provider of the data / the sensor owner registers the sensor on the blockchain
-1. The Buyer finds the sensor through some kind of discovery app and gets it's record from the blockchain 
+1. The Buyer finds the sensor through some kind of discovery app and gets it's record from the blockchain
 1. The Buyer reviews records and sends the given amount of ether
 1. The Buyer follows the contract help string on how to get the data
 1. The sensor checks if the Buyer has access
@@ -47,8 +47,8 @@ Only getting sensor data off-chain.
 * [ ] Payment Channel using e.g. [obscurien's implementation](https://github.com/obscuren/whisper-payment-channel) or [void4's implementation](https://github.com/void4/paymentchannel) ![paymentchannel]
 * [ ] Evaluate permissioned blockchain where Providers are kinds for optimalization e.g. [HydraChain](https://github.com/HydraChain/hydrachain), HyperLedger, MultiChain
 * [ ] Test in real environment with real data from a sensor is being purchased
-* [ ] Display prices in USD (and other currencies?) 
-Not completely sold on this one. If the price is actually in ether, but shown in dollars can you end up paying a different amount than expected. In the payment channel scenario at least. Without the payment channel the purchase is completed at the same time that the price is displayed. With an accepted price in USD, but actually done in Ether, is it possible to envision a solution where both parties keep the deal running as long as the ratio between eth/usd is within a given threshold. 
+* [ ] Display prices in USD (and other currencies?)
+Not completely sold on this one. If the price is actually in ether, but shown in dollars can you end up paying a different amount than expected. In the payment channel scenario at least. Without the payment channel the purchase is completed at the same time that the price is displayed. With an accepted price in USD, but actually done in Ether, is it possible to envision a solution where both parties keep the deal running as long as the ratio between eth/usd is within a given threshold.
 * [ ] Support USD or other ways of payment e.g. Stipe
 
 ## Open Questions
@@ -72,12 +72,8 @@ Not completely sold on this one. If the price is actually in ether, but shown in
 ## Commands
 
 ### Run locally
-* `npm testchain`
-* `truffle serve`
+* `npm install`
+* `testrpc`
+* `webpack-dev-server`
 
 Solution is hosted on http://localhost:8080
-
-### Run tests
-* `npm testchain`
-* `npm test`
-
