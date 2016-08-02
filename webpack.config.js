@@ -22,5 +22,6 @@ module.exports = {
   },
   plugins: [
     definePlugin
-  ]
+  ],
+  devtool: 'source-map'
 }

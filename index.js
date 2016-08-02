@@ -20,11 +20,6 @@ SimpleDataMarket.load(Pudding)
 // Create our Pudding contract object
 var market = SimpleDataMarket.deployed()
 
-
-var handleBuy = function () {
-    console.log("Kobling!");
-}
-
 var IotMarket = React.createClass({
     getInitialState: function () {
         return {
