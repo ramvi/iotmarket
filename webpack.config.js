@@ -10,7 +10,10 @@ var definePlugin = new webpack.DefinePlugin({
 module.exports = {
   entry: './index.js',
   output: {
-    filename: 'bundle.js'
+    filename: 'bundle.js',
+    devtoolModuleFilenameTemplate: function(info){
+      return "file:///"+info.absoluteResourcePath;
+    }
   },
   module: {
     loaders: [

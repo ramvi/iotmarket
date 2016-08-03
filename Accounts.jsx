@@ -3,8 +3,6 @@ import {render} from "react-dom";
 import Web3 from "web3";
 import Pudding from "ether-pudding";
 import SimpleDataMarket from "./contracts/SimpleDataMarket.sol";
-import BigNumber from "bignumber.js";
-import TimerMixin from "react-timer-mixin";
 import AccountRow from "./AccountRow.jsx";
 
 // Preform the normal web3 configurations
@@ -18,49 +16,7 @@ SimpleDataMarket.load(Pudding)
 var market = SimpleDataMarket.deployed()
 
 var Accounts = React.createClass({
-    getInitialState: function () {
-        return {
-            rows: [],
-            accounts: [],
-            refreshingBalances: false
-        }
-    },
-    refreshBalances: function () {
-        if (this.state.refreshingBalances) return;
-        this.setState({refreshingBalances: true});
-
-        var tmpRows = [];
-        this.state.rows.forEach(function (r, i) {
-            web3.eth.getBalance(r.props.address, function (error, result) {
-                if (!error) {
-                    tmpRows.push(<AccountRow
-                        address={r.props.address}
-                        balance={result}
-                        updateUser={r.props.updateUser}
-                        key={i}
-                        getAccount={this.props.getAccount}/>);
-
-                    // Done
-                    if (tmpRows.length === this.state.rows.length) {
-                        this.setState({
-                            refreshingBalances: false,
-                            rows: tmpRows,
-                        });
-                    }
-                } else console.log(error);
-            }.bind(this));
-        }.bind(this));
-    },
-    componentDidMount: function () {
-        this.setInterval(
-            () => {
-                this.refreshBalances()
-            },
-            2000
-        )
-    },
-    mixins: [TimerMixin],
-    componentWillReceiveProps: function () {
+        /*componentWillReceiveProps: function () {
         if (!this.props.accounts.length) return;
 
         var accountsHtml = [];
@@ -73,8 +29,19 @@ var Accounts = React.createClass({
                 getAccount={this.props.getAccount}/>)
         }.bind(this));
         this.setState({rows: accountsHtml});
-    },
+    },*/
     render: function () {
+        var rows = this.props.accounts.map((a) => {
+            let isSelected = this.props.getAccount() === a.address;
+            return (
+                <AccountRow
+                    key={a.address}
+                    address={a.address}
+                    balance={a.balance}
+                    updateUser={this.props.updateUser}
+                    isSelected={isSelected} />
+            );
+        }, this);
         return (
             <table>
                 <thead>
@@ -83,7 +50,9 @@ var Accounts = React.createClass({
                     <th>Balance</th>
                 </tr>
                 </thead>
-                <tbody>{this.state.rows}</tbody>
+                <tbody>
+                    {rows}
+                </tbody>
             </table>
         );
     }

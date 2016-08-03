@@ -153,7 +153,7 @@ contract SimpleDataMarket {
     return false;
   }
 
-  function withdraw(string key) returns (uint balance) {
+  function withdraw(string key) {
     if (msg.sender == records[key].owner) {
       uint earnings = records[key].vault;
       records[key].vault = 0; // In this order to be sure ledger is set to 0 BEFORE transfering the money. DAO bug

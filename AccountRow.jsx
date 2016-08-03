@@ -19,10 +19,10 @@ var AccountRow = React.createClass({
         if (val)
             return parseFloat(Math.round(web3.fromWei(val.valueOf(), "ether") * 100) / 100).toFixed(2);
     },
-    render: function () {
+    render: function() {
         return (
             <tr>
-                <td style={this.props.getAccount() === this.props.address ? {fontWeight: 'bold'} : null }>
+                <td style={this.props.isSelected ? {fontWeight: 'bold'} : null }>
                     <a href="#" onClick={() => {
                         this.props.updateUser(this.props.address)
                     }}>

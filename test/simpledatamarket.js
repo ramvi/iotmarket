@@ -1,10 +1,10 @@
 var BigNumber = require('bignumber.js');
 
-contract('SimpleDataMarket', function (accounts) {
+contract('SimpleDataMarket', (accounts) => {
 
-    var account_creator = accounts[0];
-    var amount = web3.toWei(1, "ether"); // 1 ether
-    var account_balance;
+    let account_creator = accounts[0];
+    let amount = web3.toWei(1, "ether"); // 1 ether
+    let account_balance;
 
     /*it("should purchase access and get accepted. Sensor should be paid", function (done) {
      var market = SimpleDataMarket.deployed();
@@ -29,56 +29,56 @@ contract('SimpleDataMarket', function (accounts) {
      }).then(done).catch(done);
      });*/
 
-    it("should purchase access and get accepted. Sensor should be paid", function (done) {
-        var market = SimpleDataMarket.deployed();
-        var threeEtherAsBigNum = new BigNumber(web3.toWei(3, "ether"));
+    it("should purchase access and get accepted. Sensor should be paid", (done) => {
+        let market = SimpleDataMarket.deployed();
+        let threeEtherAsBigNum = new BigNumber(web3.toWei(3, "ether"));
+
+        let gasUsed = 0;
 
         market.register.sendTransaction(
-            account_creator,
+            'a',
             "TEST: Live GPS data from Jon Ramvis iPhone. Delivered every second. This deal is for access for one month from initialization.",
             true,
             "The solution is available through a REST interface on example.com",
             account_creator,
             2592000, // one month
             amount
-        ).then(function () {
+        )
+            .then(() => {
             // 3x purchases
             return market.buyAccess.sendTransaction(
-                account_creator,
+                'a',
                 {from: accounts[1], value: amount});
-        }).then(function () {
+        }).then(() => {
             return market.buyAccess.sendTransaction(
-                account_creator,
+                'a',
                 {from: accounts[2], value: amount});
-        }).then(function () {
+        }).then(() => {
             return market.buyAccess.sendTransaction(
-                account_creator,
+                'a',
                 {from: accounts[3], value: amount});
-        }).then(function () {
+        })
+            .then(() => {
             return web3.eth.getBalance(market.address);
-        }).then(function (balance) {
-            assert.equal(threeEtherAsBigNum.equals(balance), true, "The _contract balance_ is not correct");
-            return market.balance(account_creator);
-        }).then(function (balance) {
-            assert.equal(threeEtherAsBigNum.equals(balance), true, "The _sensor balance_ is not correct");
+        }).then((balance) => {
+            assert.equal(threeEtherAsBigNum.equals(balance), true, "The _contract balance_ is not correct. Balance: " + balance);
+            return market.balance('a');
+        }).then((balance) => {
+            assert.equal(threeEtherAsBigNum.equals(balance), true, "The _sensor balance_ is not correct. Balance: " + balance);
             return web3.eth.getBalance(account_creator); // Get balance before withdraw
-        }).then(function (balance) {
-            account_balance = web3.fromWei(balance, "ether");
-            return market.withdraw(account_creator);
-        }).then(function () {
-            return web3.eth.getBalance(account_creator); // Get balance after withdraw
-        }).then(function (balance) {
-            // assert at ether level, not wei, as account_creator has paied an abitrary price in gas
-            // for withdraw which is hard to concretize
-
-            //string: preBalance + 3 ether IN ether
-            var preBalance = account_balance.plus(web3.fromWei(threeEtherAsBigNum, "ether")).toString();
-            var preNoDecimals = preBalance.split('.')[0]; // Only whole ether, cut after decimal
-
-            var postBalance = web3.fromWei(balance, "ether").toString();
-            var postNoDecimals = postBalance.split('.')[0];
-
-            assert.equal(preNoDecimals, postNoDecimals, "The Provider has not gotten it's revenue");
+        }).then((balance) => {
+            account_balance = balance;//web3.fromWei(balance, "ether");
+            // Try to withdraw with wrong ID
+            return market.withdraw('b', {from: account_creator});
+        }).then((tx) => {
+            return web3.eth.getTransactionReceipt(tx);
+        }).then((receipt) => {
+            gasUsed = receipt.gasUsed;
+            // Get balance after withdraw
+            return web3.eth.getBalance(account_creator);
+        }).then((balance) => {
+            // Pre tx + gas should be new tx
+            assert.equal(balance.plus(gasUsed).valueOf(), account_balance.valueOf(), "The Provider has not gotten it's revenue");
         }).then(done).catch(done);
     });
 

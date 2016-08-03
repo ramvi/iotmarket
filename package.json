@@ -8,8 +8,11 @@
     "demo",
     "webpack"
   ],
-  "author": "Karl Floersch",
-  "license": "MIT",
+  "author": "Jon Ramvi",
+  "license": "?",
+  "scripts": {
+    "start": "webpack-dev-server"
+  },
   "dependencies": {
     "babel-core": "~6.0.20",
     "babel-loader": "~6.0.1",
