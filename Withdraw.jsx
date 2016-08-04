@@ -18,7 +18,7 @@ var market = SimpleDataMarket.deployed()
 var Withdraw = React.createClass({
     withdraw: function() {
         this.props.setText("... performing withdraw...");
-        var id = document.getElementById("id").value;
+        var id = document.getElementById("withdrawID").value;
         market.withdraw.sendTransaction(id, {from: this.props.getAccount()}).then(function() {
             this.props.setText(this.props.getAccount() + " withdrew.");
         }.bind(this));
@@ -27,7 +27,7 @@ var Withdraw = React.createClass({
         return (
             <div>
                 <h3>Withdraw</h3>
-                <input type="text" id="id" />
+                <input type="text" id="withdrawID" />
                 <button onClick={() => {this.withdraw()}}>Withdraw</button>
             </div>
         );
